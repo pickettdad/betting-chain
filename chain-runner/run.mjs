@@ -65,7 +65,7 @@ async function callGrok(prompt) {
       Authorization: `Bearer ${process.env.XAI_API_KEY}`,
     },
     body: JSON.stringify({
-      model: 'grok-3',
+      model: 'grok-4',
       input: [{ role: 'user', content: prompt }],
       tools: [
         { type: 'web_search' },
@@ -626,7 +626,7 @@ async function main() {
   if (step2.status === 'error') { await saveProgress({ status: 'error' }); process.exit(1); }
 
   // === STEP 3: News Veto ===
-  const step3 = await runStep('veto', 'grok-3', () =>
+  const step3 = await runStep('veto', 'grok-4', () =>
     callGrok(buildPrompt3(step1.output, step2.output))
   );
   steps.push(step3);

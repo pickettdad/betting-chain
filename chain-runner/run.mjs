@@ -96,7 +96,7 @@ async function callClaude(prompt) {
 
 async function callGemini(prompt) {
   const model = genAI.getGenerativeModel({
-    model: 'gemini-2.5-pro-preview-05-06',
+    model: 'gemini-2.5-pro',
     generationConfig: { maxOutputTokens: 8000 },
   });
   const result = await model.generateContent(prompt);

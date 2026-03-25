@@ -55,7 +55,10 @@ async function callOpenAI(prompt) {
 }
 
 async function callGrok(prompt) {
-  const response = await fetch('https://api.x.ai/v1/chat/completions', {
+  // Uses the xAI Responses API (not chat/completions) to enable
+  // real-time web + X/Twitter search via server-side tools.
+  // Confirmed correct as of March 2026 per xAI docs.
+  const response = await fetch('https://api.x.ai/v1/responses', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -63,9 +66,12 @@ async function callGrok(prompt) {
     },
     body: JSON.stringify({
       model: 'grok-3',
-      messages: [{ role: 'user', content: prompt }],
-      max_tokens: 8000,
-      search: { mode: 'auto', sources: ['web', 'x'] },
+      input: [{ role: 'user', content: prompt }],
+      tools: [
+        { type: 'web_search' },
+        { type: 'x_search' },
+      ],
+      max_output_tokens: 8000,
     }),
   });
   if (!response.ok) {
@@ -73,13 +79,21 @@ async function callGrok(prompt) {
     throw new Error(`Grok API error ${response.status}: ${err}`);
   }
   const data = await response.json();
-  if (Array.isArray(data.choices?.[0]?.message?.content)) {
-    return data.choices[0].message.content
-      .filter((block) => block.type === 'text')
-      .map((block) => block.text)
-      .join('\n');
+  // Responses API returns data.output array; extract text blocks
+  if (Array.isArray(data.output)) {
+    const textParts = [];
+    for (const item of data.output) {
+      // Each output item may have a content array (message type) or be a tool result
+      if (item.type === 'message' && Array.isArray(item.content)) {
+        for (const block of item.content) {
+          if (block.type === 'text') textParts.push(block.text);
+        }
+      }
+    }
+    if (textParts.length > 0) return textParts.join('\n');
   }
-  return data.choices?.[0]?.message?.content ?? '';
+  // Fallback: try to extract any text from the response
+  return JSON.stringify(data.output ?? data, null, 2);
 }
 
 async function callClaude(prompt) {
@@ -508,6 +522,33 @@ function detectLeagues(slate) {
 }
 
 // ============================================================
+// Retry helper for transient API errors
+// ============================================================
+
+async function withRetry(fn, { maxRetries = 1, delayMs = 10000, stepName = '' } = {}) {
+  let lastError;
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      return await fn();
+    } catch (error) {
+      lastError = error;
+      const msg = error?.message ?? '';
+      const isTransient = msg.includes('429') || msg.includes('500') ||
+        msg.includes('502') || msg.includes('503') || msg.includes('ECONNRESET') ||
+        msg.includes('ETIMEDOUT') || msg.includes('fetch failed');
+      if (isTransient && attempt < maxRetries) {
+        console.log(`⚠️ ${stepName} transient error (attempt ${attempt + 1}/${maxRetries + 1}), retrying in ${delayMs / 1000}s...`);
+        console.log(`   Error: ${msg}`);
+        await new Promise(r => setTimeout(r, delayMs));
+      } else {
+        throw error;
+      }
+    }
+  }
+  throw lastError;
+}
+
+// ============================================================
 // Run a single step
 // ============================================================
 
@@ -518,7 +559,7 @@ async function runStep(name, model, fn) {
 
   const start = Date.now();
   try {
-    const output = await fn();
+    const output = await withRetry(fn, { maxRetries: 1, delayMs: 10000, stepName: name });
     const duration = Date.now() - start;
     console.log(`✅ ${name} complete in ${(duration / 1000).toFixed(1)}s`);
     console.log(`Output preview: ${output.substring(0, 200)}...`);

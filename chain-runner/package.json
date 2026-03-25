@@ -1,0 +1,12 @@
+{
+  "name": "betting-chain-runner",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.43.0",
+    "openai": "^4.52.0",
+    "@anthropic-ai/sdk": "^0.24.0",
+    "@google/generative-ai": "^0.12.0"
+  }
+}

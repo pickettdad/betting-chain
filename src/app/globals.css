@@ -1,0 +1,122 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+:root {
+  --bg-primary: #0a0a0f;
+  --bg-secondary: #12121a;
+  --bg-tertiary: #1a1a26;
+  --bg-elevated: #222233;
+  --accent-green: #22c55e;
+  --accent-red: #ef4444;
+  --accent-amber: #f59e0b;
+  --accent-blue: #3b82f6;
+  --accent-purple: #a855f7;
+  --text-primary: #e8e8ed;
+  --text-secondary: #9898a8;
+  --text-muted: #5a5a6e;
+  --border-subtle: #2a2a3a;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: 'DM Sans', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-subtle);
+  border-radius: 3px;
+}
+
+/* Markdown-like output styling */
+.chain-output {
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 14px;
+  line-height: 1.65;
+  color: var(--text-primary);
+}
+.chain-output h1, .chain-output h2, .chain-output h3 {
+  font-family: 'Space Grotesk', system-ui, sans-serif;
+  font-weight: 700;
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+}
+.chain-output h2 { font-size: 18px; }
+.chain-output h3 { font-size: 15px; color: var(--text-secondary); }
+.chain-output table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  margin: 12px 0;
+}
+.chain-output th {
+  text-align: left;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  font-weight: 600;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.chain-output td {
+  padding: 8px 10px;
+  border-bottom: 1px solid #1a1a2610;
+}
+.chain-output strong {
+  color: var(--accent-green);
+  font-weight: 600;
+}
+.chain-output code {
+  background: var(--bg-tertiary);
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+}
+.chain-output ul, .chain-output ol {
+  padding-left: 20px;
+  margin: 8px 0;
+}
+.chain-output li {
+  margin: 4px 0;
+}
+.chain-output hr {
+  border: none;
+  border-top: 1px solid var(--border-subtle);
+  margin: 20px 0;
+}
+
+/* Pulsing dot animation for running steps */
+@keyframes pulseDot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.85); }
+}
+.pulse-dot {
+  animation: pulseDot 1.5s ease-in-out infinite;
+}
+
+/* Upload drop zone */
+.drop-zone {
+  border: 2px dashed var(--border-subtle);
+  transition: all 0.2s ease;
+}
+.drop-zone:hover, .drop-zone.drag-over {
+  border-color: var(--accent-green);
+  background: rgba(34, 197, 94, 0.04);
+}

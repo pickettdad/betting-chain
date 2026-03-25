@@ -1,0 +1,46 @@
+name: Run Betting Chain
+
+on:
+  workflow_dispatch:
+    inputs:
+      run_id:
+        description: 'The run ID to process'
+        required: true
+        type: string
+
+jobs:
+  run-chain:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install chain runner dependencies
+        working-directory: ./chain-runner
+        run: npm install
+
+      - name: Run the betting chain
+        working-directory: ./chain-runner
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          XAI_API_KEY: ${{ secrets.XAI_API_KEY }}
+          GOOGLE_AI_API_KEY: ${{ secrets.GOOGLE_AI_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          TWILIO_ACCOUNT_SID: ${{ secrets.TWILIO_ACCOUNT_SID }}
+          TWILIO_AUTH_TOKEN: ${{ secrets.TWILIO_AUTH_TOKEN }}
+          TWILIO_FROM_NUMBER: ${{ secrets.TWILIO_FROM_NUMBER }}
+          NOTIFY_PHONE_NUMBER: ${{ secrets.NOTIFY_PHONE_NUMBER }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          NOTIFY_EMAIL: ${{ secrets.NOTIFY_EMAIL }}
+          APP_URL: ${{ secrets.APP_URL }}
+          RUN_ID: ${{ inputs.run_id }}
+        run: node run.mjs

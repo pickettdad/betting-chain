@@ -10,8 +10,8 @@ export async function GET(
     if (!run) {
       return NextResponse.json({ error: 'Run not found' }, { status: 404 });
     }
-    // Strip screenshots from response to reduce payload
-    const { screenshots_base64, ...rest } = run;
+    // Strip image paths from response to reduce payload
+    const { image_paths, ...rest } = run;
     return NextResponse.json(rest);
   } catch (error: any) {
     return NextResponse.json(
